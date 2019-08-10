@@ -1,22 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:redis="http://www.mulesoft.org/schema/mule/redis" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/redis http://www.mulesoft.org/schema/mule/redis/current/mule-redis.xsd">
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="f24a59e7-eb92-4511-ab21-f4984f5f0106" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
+	<redis:redis-config name="Redis_Redis" doc:name="Redis Redis" doc:id="601d4880-96e8-490d-a759-ec9bda429235" >
+		<redis:nonclustered-connection />
+	</redis:redis-config>
 	<flow name="http-hello" doc:id="1cb7c783-b0b0-4a4c-bc92-1dc57d4582aa" >
 		<http:listener doc:name="Hello" doc:id="8555c887-cd99-4708-9bb9-0873babc9573" config-ref="HTTP_Listener_config" path="/hello"/>
+		<redis:set doc:name="Set" doc:id="c8fc2149-ad5d-4418-8ccb-ec75e7baee42" config-ref="Redis_Redis" key="hello"/>
+		<redis:get doc:name="Get" doc:id="439673f8-2eda-4f01-82d4-e46c2cf6422c" config-ref="Redis_Redis" key="world"/>
 		<ee:transform doc:name="Transform Message" doc:id="c7594dd6-df0d-4b8a-a7ea-526503e02f5c" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
 {
-	"hello": "world"
+	"hello": payload
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
